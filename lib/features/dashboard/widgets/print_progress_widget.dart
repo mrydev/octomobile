@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../connection/providers/connection_provider.dart';
 import '../providers/print_job_provider.dart';
 
@@ -10,6 +11,7 @@ class PrintProgressWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final jobState = ref.watch(printJobProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     final progress = jobState.progress;
     final status = jobState.status;
@@ -69,8 +71,8 @@ class PrintProgressWidget extends ConsumerWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                _buildTimeStat('Elapsed', _formatDuration(printTime), theme),
-                _buildTimeStat('ETA', _formatDuration(printTimeLeft), theme),
+                _buildTimeStat(l10n.elapsed, _formatDuration(printTime), theme),
+                _buildTimeStat(l10n.eta, _formatDuration(printTimeLeft), theme),
               ],
             ),
             Builder(
@@ -94,7 +96,7 @@ class PrintProgressWidget extends ConsumerWidget {
                                 backgroundColor: theme.colorScheme.secondary,
                               ),
                               icon: const Icon(Icons.pause),
-                              label: const Text('Beklet'),
+                              label: Text(l10n.pause),
                               onPressed: () =>
                                   _handleAction(context, ref, 'pause'),
                             ),
@@ -104,7 +106,7 @@ class PrintProgressWidget extends ConsumerWidget {
                                 backgroundColor: Colors.green,
                               ),
                               icon: const Icon(Icons.play_arrow),
-                              label: const Text('Devam Et'),
+                              label: Text(l10n.resume),
                               onPressed: () =>
                                   _handleAction(context, ref, 'resume'),
                             ),
@@ -113,8 +115,9 @@ class PrintProgressWidget extends ConsumerWidget {
                               backgroundColor: theme.colorScheme.error,
                             ),
                             icon: const Icon(Icons.cancel),
-                            label: const Text('İptal'),
-                            onPressed: () => _handleConfirmCancel(context, ref),
+                            label: Text(l10n.cancel),
+                            onPressed: () =>
+                                _handleConfirmCancel(context, ref, l10n),
                           ),
                         ],
                       ),
@@ -136,16 +139,20 @@ class PrintProgressWidget extends ConsumerWidget {
     if (action == 'resume') apiClient?.resumePrint();
   }
 
-  void _handleConfirmCancel(BuildContext context, WidgetRef ref) {
+  void _handleConfirmCancel(
+    BuildContext context,
+    WidgetRef ref,
+    AppLocalizations l10n,
+  ) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Baskıyı İptal Et'),
-        content: const Text('Bu işlem geri alınamaz. Emin misiniz?'),
+        title: Text(l10n.cancelPrintTitle),
+        content: Text(l10n.cancelPrintDesc),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Vazgeç'),
+            child: Text(l10n.cancelAction),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
@@ -155,7 +162,7 @@ class PrintProgressWidget extends ConsumerWidget {
               ref.read(apiClientProvider)?.cancelPrint();
               Navigator.pop(context);
             },
-            child: const Text('Evet, İptal Et'),
+            child: Text(l10n.yesCancel),
           ),
         ],
       ),

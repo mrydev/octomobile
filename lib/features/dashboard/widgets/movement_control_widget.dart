@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../connection/providers/connection_provider.dart';
 
 class MovementControlWidget extends ConsumerStatefulWidget {
@@ -18,6 +19,7 @@ class _MovementControlWidgetState extends ConsumerState<MovementControlWidget> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
     final apiClient = ref.read(apiClientProvider);
 
     return Card(
@@ -27,6 +29,11 @@ class _MovementControlWidgetState extends ConsumerState<MovementControlWidget> {
         child: Column(
           children: [
             // Head Movement Distance Selector
+            Text(
+              l10n.headMovement,
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 8),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [

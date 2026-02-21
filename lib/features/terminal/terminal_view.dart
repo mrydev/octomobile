@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import '../../l10n/app_localizations.dart';
 import '../connection/providers/connection_provider.dart';
 import 'providers/terminal_provider.dart';
 
@@ -23,7 +24,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
     super.dispose();
   }
 
-  void _sendCommand() {
+  void _sendCommand(AppLocalizations l10n) {
     final cmd = _commandController.text.trim();
     if (cmd.isEmpty) return;
 
@@ -37,9 +38,9 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
         })
         .catchError((err) {
           if (!mounted) return;
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(SnackBar(content: Text('Komut Gönderilemedi: $err')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text('${l10n.commandFailed}: $err')),
+          );
         });
   }
 
@@ -57,6 +58,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
   Widget build(BuildContext context) {
     final logs = ref.watch(terminalProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     // Attempt to auto scroll after new logs arrive
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -65,7 +67,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Terminal'),
+        title: Text(l10n.terminal),
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
@@ -79,8 +81,8 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                   : theme.colorScheme.onSurface,
             ),
             tooltip: _autoScroll
-                ? 'Otomatik Kaydırma Açık'
-                : 'Otomatik Kaydırma Kapalı',
+                ? l10n.terminalAutoScrollOn
+                : l10n.terminalAutoScrollOff,
             onPressed: () {
               setState(() {
                 _autoScroll = !_autoScroll;
@@ -90,7 +92,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
           ),
           IconButton(
             icon: const Icon(Icons.delete_outline),
-            tooltip: 'Logları Temizle',
+            tooltip: l10n.terminalClear,
             onPressed: () {
               ref.read(terminalProvider.notifier).clearLogs();
             },
@@ -173,7 +175,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                         fontWeight: FontWeight.w500,
                       ),
                       decoration: InputDecoration(
-                        hintText: 'G-Code girin (örn: G28, M105)',
+                        hintText: l10n.terminalHint,
                         hintStyle: TextStyle(
                           color: theme.colorScheme.onSurface.withValues(
                             alpha: 0.4,
@@ -193,7 +195,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                         ),
                       ),
                       textCapitalization: TextCapitalization.characters,
-                      onSubmitted: (_) => _sendCommand(),
+                      onSubmitted: (_) => _sendCommand(l10n),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -223,7 +225,7 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                     child: IconButton(
                       icon: const Icon(Icons.send),
                       color: theme.colorScheme.onPrimary,
-                      onPressed: _sendCommand,
+                      onPressed: () => _sendCommand(l10n),
                     ),
                   ),
                 ],

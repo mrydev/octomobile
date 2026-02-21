@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../l10n/app_localizations.dart';
 import 'dashboard_view.dart';
 import '../files/files_view.dart';
 import '../terminal/terminal_view.dart';
@@ -23,6 +24,8 @@ class _MainLayoutState extends State<MainLayout> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+
     return Scaffold(
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 300),
@@ -47,22 +50,22 @@ class _MainLayoutState extends State<MainLayout> {
                 _currentIndex = index;
               });
             },
-            items: const [
+            items: [
               BottomNavigationBarItem(
-                icon: Icon(Icons.dashboard_rounded),
-                label: 'Dashboard',
+                icon: const Icon(Icons.dashboard_rounded),
+                label: l10n.dashboard,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.folder_rounded),
-                label: 'Files',
+                icon: const Icon(Icons.folder_rounded),
+                label: l10n.files,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.terminal_rounded),
-                label: 'Terminal',
+                icon: const Icon(Icons.terminal_rounded),
+                label: l10n.terminal,
               ),
               BottomNavigationBarItem(
-                icon: Icon(Icons.settings_rounded),
-                label: 'Settings',
+                icon: const Icon(Icons.settings_rounded),
+                label: l10n.settings,
               ),
             ],
           ),

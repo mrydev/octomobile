@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../l10n/app_localizations.dart';
 import '../../connection/providers/connection_provider.dart';
 import '../providers/temperature_provider.dart';
 import 'temperature_gauge_widget.dart';
@@ -11,12 +12,13 @@ class TemperatureDashboardWidget extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final tempState = ref.watch(temperatureProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
 
     return Row(
       children: [
         Expanded(
           child: TemperatureGaugeWidget(
-            title: 'Nozzle (T0)',
+            title: '${l10n.nozzle} (T0)',
             currentTemp: tempState.toolCurrent,
             targetTemp: tempState.toolTarget,
             maxTemp: 300.0,
@@ -24,7 +26,8 @@ class TemperatureDashboardWidget extends ConsumerWidget {
             onTap: () => _showSetTempDialog(
               context,
               ref,
-              'Nozzle',
+              l10n,
+              '${l10n.nozzle} (T0)',
               tempState.toolTarget > 0 ? tempState.toolTarget : 200.0,
               300.0,
               (val) {
@@ -36,7 +39,7 @@ class TemperatureDashboardWidget extends ConsumerWidget {
         const SizedBox(width: 16),
         Expanded(
           child: TemperatureGaugeWidget(
-            title: 'Heatbed',
+            title: l10n.bed,
             currentTemp: tempState.bedCurrent,
             targetTemp: tempState.bedTarget,
             maxTemp: 120.0,
@@ -44,7 +47,8 @@ class TemperatureDashboardWidget extends ConsumerWidget {
             onTap: () => _showSetTempDialog(
               context,
               ref,
-              'Isıtıcı Tabla',
+              l10n,
+              l10n.bed,
               tempState.bedTarget > 0 ? tempState.bedTarget : 60.0,
               120.0,
               (val) {
@@ -60,6 +64,7 @@ class TemperatureDashboardWidget extends ConsumerWidget {
   void _showSetTempDialog(
     BuildContext context,
     WidgetRef ref,
+    AppLocalizations l10n,
     String title,
     double initialVal,
     double maxVal,
@@ -72,7 +77,7 @@ class TemperatureDashboardWidget extends ConsumerWidget {
         return StatefulBuilder(
           builder: (context, setState) {
             return AlertDialog(
-              title: Text('$title Ayarla'),
+              title: Text('$title ${l10n.setTemp}'),
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -123,14 +128,14 @@ class TemperatureDashboardWidget extends ConsumerWidget {
                     ); // Optional: Provide a way to turn it off completely
                     Navigator.pop(context);
                   },
-                  child: const Text('Kapat (0°)'),
+                  child: Text(l10n.turnOff),
                 ),
                 FilledButton(
                   onPressed: () {
                     onSet(currentVal);
                     Navigator.pop(context);
                   },
-                  child: const Text('Ayarla'),
+                  child: Text(l10n.setTemp),
                 ),
               ],
             );

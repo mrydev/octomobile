@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../connection/providers/connection_provider.dart';
 
 // Simple provider to fetch and cache files
@@ -15,10 +16,11 @@ class FilesView extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final filesAsync = ref.watch(filesProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Files (G-Code)'),
+        title: Text(l10n.files),
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
@@ -31,7 +33,7 @@ class FilesView extends ConsumerWidget {
       body: filesAsync.when(
         data: (files) {
           if (files.isEmpty) {
-            return const Center(child: Text('Yüklü dosya bulunamadı.'));
+            return Center(child: Text(l10n.noFilesFound));
           }
           // Filter only machine code files (optional) or just display folders & files
           return ListView.builder(
@@ -62,20 +64,29 @@ class FilesView extends ConsumerWidget {
                         icon: const Icon(Icons.print),
                         onPressed: () {
                           final apiClient = ref.read(apiClientProvider);
-                          apiClient
-                              ?.printFile(name)
-                              .then((_) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text('$name yazdırma başlatıldı.'),
-                                  ),
-                                );
-                              })
-                              .catchError((err) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('Hata: $err')),
-                                );
-                              });
+                          final messenger = ScaffoldMessenger.of(context);
+                          if (apiClient != null) {
+                            apiClient
+                                .printFile(name)
+                                .then((_) {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '$name ${l10n.printStarted}',
+                                      ),
+                                    ),
+                                  );
+                                })
+                                .catchError((err) {
+                                  messenger.showSnackBar(
+                                    SnackBar(
+                                      content: Text(
+                                        '${l10n.commandFailed}: $err',
+                                      ),
+                                    ),
+                                  );
+                                });
+                          }
                         },
                       ),
               );
@@ -84,7 +95,7 @@ class FilesView extends ConsumerWidget {
         },
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, stack) => Center(
-          child: Text('Dosyalar alınamadı:\n$err', textAlign: TextAlign.center),
+          child: Text('${l10n.fetchError}:\n$err', textAlign: TextAlign.center),
         ),
       ),
     );

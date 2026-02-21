@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../connection/providers/connection_provider.dart';
+import '../../core/locale/locale_provider.dart';
 
 class SettingsView extends ConsumerStatefulWidget {
   const SettingsView({super.key});
@@ -44,11 +46,13 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
   Widget build(BuildContext context) {
     final settings = ref.watch(connectionSettingsProvider);
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context)!;
+    final locale = ref.watch(localeProvider);
 
     if (settings == null) {
       return Scaffold(
         appBar: AppBar(
-          title: const Text('Bağlantı Ayarları'),
+          title: Text(l10n.noConnection),
           elevation: 0,
           backgroundColor: Colors.transparent,
         ),
@@ -61,28 +65,31 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
               children: [
                 const Icon(Icons.print_disabled, size: 64, color: Colors.grey),
                 const SizedBox(height: 24),
-                const Text(
-                  'OctoPrint\'e Bağlan',
+                Text(
+                  l10n.connectToOctoprint,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                  style: const TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
                 const SizedBox(height: 32),
                 TextField(
                   controller: _urlController,
-                  decoration: const InputDecoration(
-                    labelText: 'Sunucu Adresi (URL)',
-                    prefixIcon: Icon(Icons.link),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.serverUrl,
+                    prefixIcon: const Icon(Icons.link),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 16),
                 TextField(
                   controller: _apiController,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'API Anahtarı',
-                    prefixIcon: Icon(Icons.key),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.apiKey,
+                    prefixIcon: const Icon(Icons.key),
+                    border: const OutlineInputBorder(),
                   ),
                 ),
                 const SizedBox(height: 32),
@@ -91,8 +98,13 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                   style: FilledButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 16),
                   ),
-                  child: const Text('Bağlan', style: TextStyle(fontSize: 16)),
+                  child: Text(
+                    l10n.connect,
+                    style: const TextStyle(fontSize: 16),
+                  ),
                 ),
+                const SizedBox(height: 32),
+                _buildLanguageToggle(locale),
               ],
             ),
           ),
@@ -107,7 +119,7 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Ayarlar'),
+        title: Text(l10n.settings),
         elevation: 0,
         backgroundColor: Colors.transparent,
       ),
@@ -115,9 +127,9 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
         child: ListView(
           padding: const EdgeInsets.all(16.0),
           children: [
-            const Text(
-              'Bağlantı Bilgileri',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Text(
+              l10n.connectionInfo,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             Card(
@@ -127,19 +139,17 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildInfoRow(
-                      'Bağlantı Adresi (URL)',
-                      settings.baseUrl,
-                      theme,
-                    ),
+                    _buildInfoRow(l10n.serverUrl, settings.baseUrl, theme),
                     const Divider(height: 32),
-                    _buildInfoRow('WebSocket Adresi', settings.wsUrl, theme),
+                    _buildInfoRow(l10n.wsAddress, settings.wsUrl, theme),
                     const Divider(height: 32),
-                    _buildInfoRow('API Anahtarı', maskedApiKey, theme),
+                    _buildInfoRow(l10n.apiKey, maskedApiKey, theme),
                   ],
                 ),
               ),
             ),
+            const SizedBox(height: 32),
+            _buildLanguageToggle(locale),
             const SizedBox(height: 32),
             SizedBox(
               width: double.infinity,
@@ -153,22 +163,42 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
                 ),
                 onPressed: _disconnect,
                 icon: const Icon(Icons.logout),
-                label: const Text(
-                  'Bağlantıyı Kes',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                label: Text(
+                  l10n.disconnect,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
               ),
             ),
             const SizedBox(height: 32),
-            const Center(
+            Center(
               child: Text(
-                'OctoMobile v1.0.0\nFlutter ile Geliştirildi',
+                'OctoMobile v1.0.0\n${l10n.developedWithFlutter}',
                 textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey, fontSize: 12),
+                style: const TextStyle(color: Colors.grey, fontSize: 12),
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildLanguageToggle(Locale currentLocale) {
+    return Center(
+      child: SegmentedButton<String>(
+        segments: const [
+          ButtonSegment(value: 'en', label: Text('English')),
+          ButtonSegment(value: 'tr', label: Text('Türkçe')),
+        ],
+        selected: {currentLocale.languageCode},
+        onSelectionChanged: (Set<String> newSelection) {
+          ref
+              .read(localeProvider.notifier)
+              .setLocale(Locale(newSelection.first));
+        },
       ),
     );
   }

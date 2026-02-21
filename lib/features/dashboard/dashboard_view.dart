@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../l10n/app_localizations.dart';
 import '../connection/providers/connection_provider.dart';
 import 'widgets/webcam_stream_widget.dart';
 import 'widgets/print_progress_widget.dart';
@@ -15,34 +16,33 @@ class DashboardView extends ConsumerWidget {
     // Just for demonstrating how to trigger connection in dev
     // In a real app this would be in a settings/login page
     final settings = ref.watch(connectionSettingsProvider);
+    final l10n = AppLocalizations.of(context)!;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dashboard'),
+        title: Text(l10n.dashboard),
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
           IconButton(
             icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
-            tooltip: 'Acil Durdurma (M112)',
+            tooltip: l10n.emergencyStop,
             onPressed: () {
               if (settings == null) {
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Bağlantı bulunamadı.')),
+                  SnackBar(content: Text(l10n.connectionNotFound)),
                 );
                 return;
               }
               showDialog(
                 context: context,
                 builder: (context) => AlertDialog(
-                  title: const Text('Acil Durdurma!'),
-                  content: const Text(
-                    'Yazıcıya M112 komutu gönderilecek. Bu işlem yazıcıyı anında durdurur ve yeniden başlatmanızı gerektirebilir. Emin misiniz?',
-                  ),
+                  title: Text(l10n.emergencyStop),
+                  content: Text(l10n.emergencyStopDesc),
                   actions: [
                     TextButton(
                       onPressed: () => Navigator.pop(context),
-                      child: const Text('Vazgeç'),
+                      child: Text(l10n.cancelAction),
                     ),
                     FilledButton(
                       style: FilledButton.styleFrom(
@@ -52,14 +52,10 @@ class DashboardView extends ConsumerWidget {
                         ref.read(apiClientProvider)?.sendCommand('M112');
                         Navigator.pop(context);
                         ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text(
-                              'M112 Acil Durdurma Komutu Gönderildi!',
-                            ),
-                          ),
+                          SnackBar(content: Text(l10n.emergencySent)),
                         );
                       },
-                      child: const Text('Tüm Sistemi Durdur'),
+                      child: Text(l10n.stopSystem),
                     ),
                   ],
                 ),
@@ -83,15 +79,15 @@ class DashboardView extends ConsumerWidget {
                 );
 
                 ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('OctoPrint\'e Bağlanıldı (192.168.1.156)'),
+                  SnackBar(
+                    content: Text('${l10n.connectedTo} (192.168.1.156)'),
                   ),
                 );
               } else {
                 ref.read(connectionSettingsProvider.notifier).state = null;
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Bağlantı Kesildi')),
-                );
+                ScaffoldMessenger.of(
+                  context,
+                ).showSnackBar(SnackBar(content: Text(l10n.disconnected)));
               }
             },
           ),
@@ -100,38 +96,38 @@ class DashboardView extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
-          children:
-              const [
-                WebcamStreamWidget(),
-                SizedBox(height: 24),
-                Text(
-                  'Temperatures',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12),
-                TemperatureDashboardWidget(),
-                SizedBox(height: 24),
-                Text(
-                  'Print Status',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12),
-                PrintProgressWidget(),
-                SizedBox(height: 24),
-                Text(
-                  'Movement',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12),
-                MovementControlWidget(),
-                SizedBox(height: 24),
-                Text(
-                  'Tuning (Ayarlar)',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 12),
-              ] +
-              [const TuningControlWidget(), const SizedBox(height: 24)],
+          children: [
+            const WebcamStreamWidget(),
+            const SizedBox(height: 24),
+            Text(
+              l10n.temperatures,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const TemperatureDashboardWidget(),
+            const SizedBox(height: 24),
+            Text(
+              l10n.printStatus,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const PrintProgressWidget(),
+            const SizedBox(height: 24),
+            Text(
+              l10n.movement,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const MovementControlWidget(),
+            const SizedBox(height: 24),
+            Text(
+              l10n.tuning,
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            const TuningControlWidget(),
+            const SizedBox(height: 24),
+          ],
         ),
       ),
     );
