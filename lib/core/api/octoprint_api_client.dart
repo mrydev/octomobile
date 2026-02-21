@@ -113,6 +113,17 @@ class OctoPrintApiClient {
     await post('job', {'command': 'pause', 'action': 'resume'});
   }
 
+  // === Tuning Controls ===
+  Future<void> setFeedrate(int factor) async {
+    // factor is a percentage, e.g. 100 for 100%
+    await post('printer/printhead', {'command': 'feedrate', 'factor': factor});
+  }
+
+  Future<void> setFlowrate(int factor) async {
+    // factor is a percentage, e.g. 100 for 100%
+    await post('printer/tool', {'command': 'flowrate', 'factor': factor});
+  }
+
   // === Terminal / G-Code ===
   Future<void> sendCommand(String command) async {
     // OctoPrint /api/printer/command accepts a single command string

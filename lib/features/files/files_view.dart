@@ -18,7 +18,7 @@ class FilesView extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Dosyalar (G-Code)'),
+        title: const Text('Files (G-Code)'),
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [

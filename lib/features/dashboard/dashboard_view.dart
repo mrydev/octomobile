@@ -5,6 +5,7 @@ import 'widgets/webcam_stream_widget.dart';
 import 'widgets/print_progress_widget.dart';
 import '../temperature/widgets/temperature_dashboard_widget.dart';
 import 'widgets/movement_control_widget.dart';
+import 'widgets/tuning_control_widget.dart';
 
 class DashboardView extends ConsumerWidget {
   const DashboardView({super.key});
@@ -21,6 +22,50 @@ class DashboardView extends ConsumerWidget {
         elevation: 0,
         backgroundColor: Colors.transparent,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.warning_amber_rounded, color: Colors.orange),
+            tooltip: 'Acil Durdurma (M112)',
+            onPressed: () {
+              if (settings == null) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Bağlantı bulunamadı.')),
+                );
+                return;
+              }
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Acil Durdurma!'),
+                  content: const Text(
+                    'Yazıcıya M112 komutu gönderilecek. Bu işlem yazıcıyı anında durdurur ve yeniden başlatmanızı gerektirebilir. Emin misiniz?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text('Vazgeç'),
+                    ),
+                    FilledButton(
+                      style: FilledButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.error,
+                      ),
+                      onPressed: () {
+                        ref.read(apiClientProvider)?.sendCommand('M112');
+                        Navigator.pop(context);
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text(
+                              'M112 Acil Durdurma Komutu Gönderildi!',
+                            ),
+                          ),
+                        );
+                      },
+                      child: const Text('Tüm Sistemi Durdur'),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
           IconButton(
             icon: Icon(
               settings != null ? Icons.wifi : Icons.wifi_off,
@@ -55,31 +100,38 @@ class DashboardView extends ConsumerWidget {
       body: SafeArea(
         child: ListView(
           padding: const EdgeInsets.all(16.0),
-          children: const [
-            WebcamStreamWidget(),
-            SizedBox(height: 24),
-            Text(
-              'Temperatures',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            TemperatureDashboardWidget(),
-            SizedBox(height: 24),
-            Text(
-              'Print Status',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            PrintProgressWidget(),
-            SizedBox(height: 24),
-            Text(
-              'Movement',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            SizedBox(height: 12),
-            MovementControlWidget(),
-            SizedBox(height: 24),
-          ],
+          children:
+              const [
+                WebcamStreamWidget(),
+                SizedBox(height: 24),
+                Text(
+                  'Temperatures',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                TemperatureDashboardWidget(),
+                SizedBox(height: 24),
+                Text(
+                  'Print Status',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                PrintProgressWidget(),
+                SizedBox(height: 24),
+                Text(
+                  'Movement',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                MovementControlWidget(),
+                SizedBox(height: 24),
+                Text(
+                  'Tuning (Ayarlar)',
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+              ] +
+              [const TuningControlWidget(), const SizedBox(height: 24)],
         ),
       ),
     );
