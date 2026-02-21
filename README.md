@@ -50,7 +50,7 @@
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/yourusername/octomobile.git
+   git clone https://github.com/mrydev/octomobile.git
    cd octomobile
    ```
 
@@ -89,4 +89,4 @@ Distributed under the MIT License. See `LICENSE` for more information.
 
 ---
 
-Developed with ❤️ by [Your Name/Team]
+Developed with ❤️ by MryDEV and Gemini
