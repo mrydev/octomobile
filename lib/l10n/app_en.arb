@@ -66,5 +66,13 @@
   "turnOff": "Turn Off (0°)",
   "cancelPrintTitle": "Cancel Print",
   "cancelPrintDesc": "This action cannot be undone. Are you sure?",
-  "yesCancel": "Yes, Cancel"
+  "yesCancel": "Yes, Cancel",
+  
+  "rpiTab": "Server",
+  "rpiHost": "Host (IP)",
+  "username": "Username",
+  "password": "Password",
+  "systemResources": "System Resources",
+  "sshTerminal": "SSH Terminal",
+  "connectSsh": "Connect via SSH"
 }

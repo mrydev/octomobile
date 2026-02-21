@@ -3,6 +3,7 @@ import '../../l10n/app_localizations.dart';
 import 'dashboard_view.dart';
 import '../files/files_view.dart';
 import '../terminal/terminal_view.dart';
+import '../rpi/rpi_view.dart';
 import '../settings/settings_view.dart';
 
 class MainLayout extends StatefulWidget {
@@ -19,6 +20,7 @@ class _MainLayoutState extends State<MainLayout> {
     const DashboardView(),
     const FilesView(),
     const TerminalView(),
+    const RpiView(),
     const SettingsView(),
   ];
 
@@ -62,6 +64,10 @@ class _MainLayoutState extends State<MainLayout> {
               BottomNavigationBarItem(
                 icon: const Icon(Icons.terminal_rounded),
                 label: l10n.terminal,
+              ),
+              BottomNavigationBarItem(
+                icon: const Icon(Icons.memory_rounded),
+                label: l10n.rpiTab,
               ),
               BottomNavigationBarItem(
                 icon: const Icon(Icons.settings_rounded),

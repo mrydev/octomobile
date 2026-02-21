@@ -451,6 +451,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yes, Cancel'**
   String get yesCancel;
+
+  /// No description provided for @rpiTab.
+  ///
+  /// In en, this message translates to:
+  /// **'Server'**
+  String get rpiTab;
+
+  /// No description provided for @rpiHost.
+  ///
+  /// In en, this message translates to:
+  /// **'Host (IP)'**
+  String get rpiHost;
+
+  /// No description provided for @username.
+  ///
+  /// In en, this message translates to:
+  /// **'Username'**
+  String get username;
+
+  /// No description provided for @password.
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get password;
+
+  /// No description provided for @systemResources.
+  ///
+  /// In en, this message translates to:
+  /// **'System Resources'**
+  String get systemResources;
+
+  /// No description provided for @sshTerminal.
+  ///
+  /// In en, this message translates to:
+  /// **'SSH Terminal'**
+  String get sshTerminal;
+
+  /// No description provided for @connectSsh.
+  ///
+  /// In en, this message translates to:
+  /// **'Connect via SSH'**
+  String get connectSsh;
 }
 
 class _AppLocalizationsDelegate

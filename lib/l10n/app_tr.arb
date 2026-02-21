@@ -66,5 +66,13 @@
   "turnOff": "Kapat (0°)",
   "cancelPrintTitle": "Baskıyı İptal Et",
   "cancelPrintDesc": "Bu işlem geri alınamaz. Emin misiniz?",
-  "yesCancel": "Evet, İptal Et"
+  "yesCancel": "Evet, İptal Et",
+
+  "rpiTab": "Sunucu",
+  "rpiHost": "Host (IP)",
+  "username": "Kullanıcı Adı",
+  "password": "Şifre",
+  "systemResources": "Sistem Kaynakları",
+  "sshTerminal": "SSH Terminali",
+  "connectSsh": "SSH ile Bağlan"
 }

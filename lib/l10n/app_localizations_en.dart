@@ -185,4 +185,25 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get yesCancel => 'Yes, Cancel';
+
+  @override
+  String get rpiTab => 'Server';
+
+  @override
+  String get rpiHost => 'Host (IP)';
+
+  @override
+  String get username => 'Username';
+
+  @override
+  String get password => 'Password';
+
+  @override
+  String get systemResources => 'System Resources';
+
+  @override
+  String get sshTerminal => 'SSH Terminal';
+
+  @override
+  String get connectSsh => 'Connect via SSH';
 }

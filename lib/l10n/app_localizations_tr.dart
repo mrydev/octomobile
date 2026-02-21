@@ -185,4 +185,25 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get yesCancel => 'Evet, İptal Et';
+
+  @override
+  String get rpiTab => 'Sunucu';
+
+  @override
+  String get rpiHost => 'Host (IP)';
+
+  @override
+  String get username => 'Kullanıcı Adı';
+
+  @override
+  String get password => 'Şifre';
+
+  @override
+  String get systemResources => 'Sistem Kaynakları';
+
+  @override
+  String get sshTerminal => 'SSH Terminali';
+
+  @override
+  String get connectSsh => 'SSH ile Bağlan';
 }

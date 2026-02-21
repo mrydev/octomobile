@@ -42,6 +42,10 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  shared_preferences: ^2.5.4
+  flutter_native_splash: ^2.4.7
+  dartssh2: ^2.13.0
+  xterm: ^4.0.0
 
 dependency_overrides:
   http: ^1.2.0
@@ -56,6 +60,7 @@ dev_dependencies:
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
   flutter_lints: ^6.0.0
+  flutter_launcher_icons: ^0.14.4
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -97,5 +102,18 @@ flutter:
   #       - asset: fonts/TrajanPro_Bold.ttf
   #         weight: 700
   #
+  #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_native_splash:
+  color: "#14141A"
+  image: assets/images/logo.png
+  android: true
+  ios: true
+  web: false
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo.png"

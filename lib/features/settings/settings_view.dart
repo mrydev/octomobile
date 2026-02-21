@@ -31,15 +31,11 @@ class _SettingsViewState extends ConsumerState<SettingsView> {
 
     final wsUrl = url.replaceFirst('http', 'ws') + '/sockjs/websocket';
 
-    ref.read(connectionSettingsProvider.notifier).state = ConnectionSettings(
-      baseUrl: url,
-      apiKey: api,
-      wsUrl: wsUrl,
-    );
+    ref.read(connectionSettingsProvider.notifier).connect(url, api, wsUrl);
   }
 
   void _disconnect() {
-    ref.read(connectionSettingsProvider.notifier).state = null;
+    ref.read(connectionSettingsProvider.notifier).disconnect();
   }
 
   @override

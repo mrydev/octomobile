@@ -72,11 +72,11 @@ class DashboardView extends ConsumerWidget {
                 // Real connection for local testing
                 ref
                     .read(connectionSettingsProvider.notifier)
-                    .state = ConnectionSettings(
-                  baseUrl: 'http://192.168.1.156',
-                  apiKey: 'o0uj2Q65mOBpr_sZNJXj4x8G9vQERzLsekm-k9nF-q0',
-                  wsUrl: 'ws://192.168.1.156/sockjs/websocket',
-                );
+                    .connect(
+                      'http://192.168.1.156',
+                      'o0uj2Q65mOBpr_sZNJXj4x8G9vQERzLsekm-k9nF-q0',
+                      'ws://192.168.1.156/sockjs/websocket',
+                    );
 
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(
@@ -84,7 +84,7 @@ class DashboardView extends ConsumerWidget {
                   ),
                 );
               } else {
-                ref.read(connectionSettingsProvider.notifier).state = null;
+                ref.read(connectionSettingsProvider.notifier).disconnect();
                 ScaffoldMessenger.of(
                   context,
                 ).showSnackBar(SnackBar(content: Text(l10n.disconnected)));

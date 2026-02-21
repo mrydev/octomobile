@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/api/octoprint_api_client.dart';
 import '../../../core/api/websocket_service.dart';
 
@@ -14,10 +15,50 @@ class ConnectionSettings {
   });
 }
 
-// Holds the currently active connection settings. When null, there's no active connection.
-final connectionSettingsProvider = StateProvider<ConnectionSettings?>(
-  (ref) => null,
-);
+class ConnectionSettingsNotifier extends StateNotifier<ConnectionSettings?> {
+  ConnectionSettingsNotifier() : super(null) {
+    _loadSettings();
+  }
+
+  Future<void> _loadSettings() async {
+    final prefs = await SharedPreferences.getInstance();
+    final baseUrl = prefs.getString('baseUrl');
+    final apiKey = prefs.getString('apiKey');
+    final wsUrl = prefs.getString('wsUrl');
+
+    if (baseUrl != null && apiKey != null && wsUrl != null) {
+      state = ConnectionSettings(
+        baseUrl: baseUrl,
+        apiKey: apiKey,
+        wsUrl: wsUrl,
+      );
+    }
+  }
+
+  Future<void> connect(String baseUrl, String apiKey, String wsUrl) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('baseUrl', baseUrl);
+    await prefs.setString('apiKey', apiKey);
+    await prefs.setString('wsUrl', wsUrl);
+
+    state = ConnectionSettings(baseUrl: baseUrl, apiKey: apiKey, wsUrl: wsUrl);
+  }
+
+  Future<void> disconnect() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('baseUrl');
+    await prefs.remove('apiKey');
+    await prefs.remove('wsUrl');
+
+    state = null;
+  }
+}
+
+// Holds the currently active connection settings and handles persistence.
+final connectionSettingsProvider =
+    StateNotifierProvider<ConnectionSettingsNotifier, ConnectionSettings?>(
+      (ref) => ConnectionSettingsNotifier(),
+    );
 
 // Provides the REST API client configured with the current connection settings.
 final apiClientProvider = Provider<OctoPrintApiClient?>((ref) {
