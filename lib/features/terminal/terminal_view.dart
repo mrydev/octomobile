@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:google_fonts/google_fonts.dart';
 import '../connection/providers/connection_provider.dart';
 import 'providers/terminal_provider.dart';
 
@@ -103,11 +104,20 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
               child: Container(
                 margin: const EdgeInsets.symmetric(horizontal: 16.0),
                 decoration: BoxDecoration(
-                  color: Colors.black, // Classic terminal feel
-                  borderRadius: BorderRadius.circular(12),
+                  color: const Color(0xFF1E1E1E), // Slick dark background
+                  borderRadius: BorderRadius.circular(16),
                   border: Border.all(
-                    color: theme.colorScheme.surfaceContainerHighest,
+                    color: theme.colorScheme.outlineVariant.withValues(
+                      alpha: 0.5,
+                    ),
                   ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.2),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
                 ),
                 child: NotificationListener<ScrollNotification>(
                   onNotification: (ScrollNotification notification) {
@@ -136,13 +146,13 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                       if (log.startsWith('Recv:')) color = Colors.white70;
 
                       return Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 2.0),
-                        child: Text(
+                        padding: const EdgeInsets.symmetric(vertical: 4.0),
+                        child: SelectableText(
                           log,
-                          style: TextStyle(
-                            fontFamily: 'monospace',
-                            fontSize: 12,
+                          style: GoogleFonts.firaCode(
+                            fontSize: 13,
                             color: color,
+                            fontWeight: FontWeight.w500,
                           ),
                         ),
                       );
@@ -158,17 +168,28 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                   Expanded(
                     child: TextField(
                       controller: _commandController,
+                      style: GoogleFonts.firaCode(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w500,
+                      ),
                       decoration: InputDecoration(
-                        hintText: 'M105, G28, vs...',
+                        hintText: 'G-Code girin (örn: G28, M105)',
+                        hintStyle: TextStyle(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.4,
+                          ),
+                          fontFamily: 'sans-serif',
+                        ),
                         filled: true,
-                        fillColor: theme.colorScheme.surfaceContainerHighest,
+                        fillColor: theme.colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.5),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
+                          borderRadius: BorderRadius.circular(16),
                           borderSide: BorderSide.none,
                         ),
                         contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 14,
+                          horizontal: 20,
+                          vertical: 16,
                         ),
                       ),
                       textCapitalization: TextCapitalization.characters,
@@ -177,9 +198,27 @@ class _TerminalViewState extends ConsumerState<TerminalView> {
                   ),
                   const SizedBox(width: 8),
                   Container(
+                    width: 54,
+                    height: 54,
                     decoration: BoxDecoration(
-                      color: theme.colorScheme.primary,
-                      borderRadius: BorderRadius.circular(12),
+                      gradient: LinearGradient(
+                        colors: [
+                          theme.colorScheme.primary,
+                          theme.colorScheme.secondary,
+                        ],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: theme.colorScheme.primary.withValues(
+                            alpha: 0.3,
+                          ),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
                     ),
                     child: IconButton(
                       icon: const Icon(Icons.send),
