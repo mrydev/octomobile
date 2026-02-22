@@ -8,19 +8,24 @@
 
 ## ✨ Key Features
 
-### 🚀 Real-time Monitoring
-- **Dashboard Overview**: Instant access to print progress, time remaining, and status.
-- **Temperature Control**: Precise monitoring and control for both Hotend and Heatbed.
-- **Webcam Integration**: High-frequency MJPEG stream support for visual monitoring.
+### 🚀 Real-time Monitoring & Control
+- **Smart Dashboard**: Instant access to print progress (with precise radial UI indicators), time remaining, and system status upon app launch.
+- **Glassmorphic Aesthetics**: A highly refined UI focused on modern dark themes, rounded corners, and soft data visualizations.
+- **Temperature Control**: Precise monitoring and control for both Hotend and Heatbed using animated gauges.
+- **Webcam Integration**: High-frequency MJPEG stream support for visual monitoring with fullscreen rotation support.
+- **Print Actions**: Effortlessly pause, resume, or cancel active prints.
+- **Axis Control**: Jog your printer axes (X,Y,Z), trigger homing, extrude, and retract filament. Include Emergency Stop.
+- **Local Notifications (Android 13+)**: Receive background push notifications for print milestones (%10, %20, etc.) and completion states.
 
-### 🛠️ Advanced Tools
-- **G-Code Management**: Browse, upload, and manage your print files directly from the app.
+### 🛠️ Advanced Network & System Features
+- **Tailscale Fallback**: Zero-configuration fallback support. When local IP fails, OctoMobile seamlessly switches to your Tailscale VPN IP for OctoPrint API, WebSockets, and SSH connections out of the box.
 - **Embedded Terminal**: Direct communication with your printer via a native G-code console.
+- **Z-Offset and Feedrate**: Real-time tuning controls extending standard printer parameters.
 
 ### 🖥️ System Health (via SSH)
-- **Raspberry Pi Integration**: Monitor your host system's health.
-- **Live Stats**: Real-time CPU temperature, usage, and RAM consumption.
-- **Maintenance**: Perform system-level tasks via the built-in terminal.
+- **Raspberry Pi Integration**: Securely connect to your host via `dartssh2` directly from the app.
+- **Live Server Stats**: Real-time CPU temperature polling, CPU load, and RAM consumption visualized beautifully.
+- **SSH Emulator**: Embedded `xterm.js` emulator for executing bash scripts or server management without leaving the app.
 
 ---
 
@@ -29,12 +34,12 @@
 - **Framework**: [Flutter](https://flutter.dev/) (Channel: stable)
 - **State Management**: [Riverpod](https://riverpod.dev/) for robust and reactive architecture.
 - **Communication**: 
-    - WebSocket for real-time printer telemetry.
-    - REST API (OctoPrint API) for commands and file management.
+    - WebSocket for real-time printer telemetry and status parsing.
+    - REST API (OctoPrint API).
     - SSH (`dartssh2`) for system-level Raspberry Pi access.
 - **UI/UX**: 
     - [Google Fonts](https://fonts.google.com/) (Inter, Outfit, etc.)
-    - Custom Dark Theme (Aesthetic oriented)
+    - Core Material 3 with Custom Dark Glass Theme
 - **Networking**: `http`, `web_socket_channel`.
 
 ---
@@ -44,7 +49,7 @@
 ### Prerequisites
 - Flutter SDK (latest version recommended)
 - An OctoPrint instance reachable from your device.
-- SSH access enabled on your Raspberry Pi (for system monitoring).
+- SSH access enabled on your Raspberry Pi (Optional, for system monitoring).
 
 ### Installation
 
@@ -70,6 +75,8 @@
 OctoMobile focuses on accessibility and currently supports:
 - 🇹🇷 **Turkish** (Native support)
 - 🇺🇸 **English** (Universal)
+
+*(Both app UI and notifications are dynamically localized based on device settings).*
 
 ---
 
