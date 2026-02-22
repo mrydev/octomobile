@@ -14,7 +14,7 @@ class MainLayout extends StatefulWidget {
 }
 
 class _MainLayoutState extends State<MainLayout> {
-  int _currentIndex = 0;
+  int _currentIndex = 3; // Start on RPi tab to test if Dashboard causes ANR
 
   final List<Widget> _pages = [
     const DashboardView(),

@@ -31,26 +31,35 @@ class RpiStats {
 
 class RpiState {
   final SSHClient? client;
+  final SSHSession? shell;
   final bool isConnecting;
+  final bool isTerminalActive;
   final RpiStats stats;
   final String error;
 
   const RpiState({
     this.client,
+    this.shell,
     this.isConnecting = false,
+    this.isTerminalActive = false,
     this.stats = const RpiStats(),
     this.error = '',
   });
 
   RpiState copyWith({
     SSHClient? client,
+    SSHSession? shell,
     bool? isConnecting,
+    bool? isTerminalActive,
     RpiStats? stats,
     String? error,
+    bool clearShell = false,
   }) {
     return RpiState(
       client: client ?? this.client,
+      shell: clearShell ? null : (shell ?? this.shell),
       isConnecting: isConnecting ?? this.isConnecting,
+      isTerminalActive: isTerminalActive ?? this.isTerminalActive,
       stats: stats ?? this.stats,
       error: error ?? this.error,
     );
@@ -99,6 +108,23 @@ class RpiNotifier extends StateNotifier<RpiState> {
     }
   }
 
+  Future<void> startTerminal() async {
+    final client = state.client;
+    if (client == null) return;
+
+    try {
+      final shell = await client.shell();
+      state = state.copyWith(shell: shell, isTerminalActive: true);
+    } catch (e) {
+      state = state.copyWith(error: 'Failed to start terminal: $e');
+    }
+  }
+
+  void closeTerminal() {
+    state.shell?.close();
+    state = state.copyWith(clearShell: true, isTerminalActive: false);
+  }
+
   void _startStatsTimer() {
     _statsTimer?.cancel();
     _fetchStats(); // Fetch immediately
@@ -113,39 +139,35 @@ class RpiNotifier extends StateNotifier<RpiState> {
     if (client == null) return;
 
     try {
-      // Get CPU temperature
-      final tempResult = await client.run(
-        'cat /sys/class/thermal/thermal_zone0/temp',
-      );
-      final cpuTempStr = String.fromCharCodes(tempResult).trim();
-      final cpuTemp = (double.tryParse(cpuTempStr) ?? 0.0) / 1000.0;
+      final cmd =
+          "cat /sys/class/thermal/thermal_zone0/temp && echo '---' && top -bn1 | grep 'Cpu(s)' | awk '{print \$2 + \$4}' && echo '---' && free -m | awk 'NR==2{printf \"%.2f %d/%d MB\", \$3*100/\$2, \$3, \$2}'";
+      final result = await client.run(cmd);
+      final output = String.fromCharCodes(result).trim();
+      final sections = output.split('---');
 
-      // Get CPU usage (basic calculation)
-      final cpuUsageResult = await client.run(
-        "top -bn1 | grep 'Cpu(s)' | awk '{print \$2 + \$4}'",
-      );
-      final cpuUsage =
-          double.tryParse(String.fromCharCodes(cpuUsageResult).trim()) ?? 0.0;
+      if (sections.length >= 3) {
+        final cpuTempStr = sections[0].trim();
+        final cpuTemp = (double.tryParse(cpuTempStr) ?? 0.0) / 1000.0;
 
-      // Get RAM usage
-      final ramResult = await client.run(
-        "free -m | awk 'NR==2{printf \"%.2f %d/%d MB\", \$3*100/\$2, \$3, \$2}'",
-      );
-      final ramOutput = String.fromCharCodes(ramResult).trim();
-      final ramParts = ramOutput.split(' ');
-      final ramUsagePercent = double.tryParse(ramParts[0]) ?? 0.0;
-      final ramText = ramParts.length > 1
-          ? ramParts.sublist(1).join(' ')
-          : '0MB / 0MB';
+        final cpuUsageStr = sections[1].trim();
+        final cpuUsage = double.tryParse(cpuUsageStr) ?? 0.0;
 
-      state = state.copyWith(
-        stats: RpiStats(
-          cpuTemp: cpuTemp,
-          cpuUsage: cpuUsage,
-          ramUsagePercent: ramUsagePercent,
-          ramText: ramText,
-        ),
-      );
+        final ramStr = sections[2].trim();
+        final ramParts = ramStr.split(' ');
+        final ramUsagePercent = double.tryParse(ramParts[0]) ?? 0.0;
+        final ramText = ramParts.length > 1
+            ? ramParts.sublist(1).join(' ')
+            : '0MB / 0MB';
+
+        state = state.copyWith(
+          stats: RpiStats(
+            cpuTemp: cpuTemp,
+            cpuUsage: cpuUsage,
+            ramUsagePercent: ramUsagePercent,
+            ramText: ramText,
+          ),
+        );
+      }
     } catch (e) {
       // Silent error for periodic stats, but could log it if needed
     }
