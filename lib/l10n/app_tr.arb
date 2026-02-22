@@ -70,9 +70,11 @@
 
   "rpiTab": "Sunucu",
   "rpiHost": "Host (IP)",
+  "rpiTailscaleIP": "Tailscale IP (Yedek Bağlantı)",
   "username": "Kullanıcı Adı",
   "password": "Şifre",
   "systemResources": "Sistem Kaynakları",
   "sshTerminal": "SSH Terminali",
-  "connectSsh": "SSH ile Bağlan"
+  "connectSsh": "SSH ile Bağlan",
+  "rpiConnectionInfo": "Sunucu Bağlantısı"
 }

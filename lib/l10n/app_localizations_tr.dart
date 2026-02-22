@@ -193,6 +193,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get rpiHost => 'Host (IP)';
 
   @override
+  String get rpiTailscaleIP => 'Tailscale IP (Yedek Bağlantı)';
+
+  @override
   String get username => 'Kullanıcı Adı';
 
   @override
@@ -206,4 +209,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get connectSsh => 'SSH ile Bağlan';
+
+  @override
+  String get rpiConnectionInfo => 'Sunucu Bağlantısı';
 }

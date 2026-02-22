@@ -70,9 +70,11 @@
   
   "rpiTab": "Server",
   "rpiHost": "Host (IP)",
+  "rpiTailscaleIP": "Tailscale IP (Optional Fallback)",
   "username": "Username",
   "password": "Password",
   "systemResources": "System Resources",
   "sshTerminal": "SSH Terminal",
-  "connectSsh": "Connect via SSH"
+  "connectSsh": "Connect via SSH",
+  "rpiConnectionInfo": "Server Connection"
 }

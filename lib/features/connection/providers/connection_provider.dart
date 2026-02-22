@@ -1,18 +1,24 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 import '../../../core/api/octoprint_api_client.dart';
 import '../../../core/api/websocket_service.dart';
 
 class ConnectionSettings {
-  final String baseUrl;
+  final String activeUrl; // The currently active/reachable URL
   final String apiKey;
-  final String wsUrl;
+  final String wsUrl; // Derived from activeUrl
+  final String configuredUrl; // The one the user actually typed in Settings
 
   ConnectionSettings({
-    required this.baseUrl,
+    required this.activeUrl,
     required this.apiKey,
     required this.wsUrl,
+    required this.configuredUrl,
   });
+
+  // Backward compatibility getters
+  String get baseUrl => activeUrl;
 }
 
 class ConnectionSettingsNotifier extends StateNotifier<ConnectionSettings?> {
@@ -20,36 +26,144 @@ class ConnectionSettingsNotifier extends StateNotifier<ConnectionSettings?> {
     _loadSettings();
   }
 
+  Future<String?> _testAndDetermineActiveUrl(
+    String configUrl,
+    String apiKey,
+  ) async {
+    // 1. Ensure configUrl has scheme
+    String safeConfigUrl = configUrl;
+    if (!safeConfigUrl.startsWith('http://') &&
+        !safeConfigUrl.startsWith('https://')) {
+      safeConfigUrl = 'http://$safeConfigUrl';
+    }
+
+    // 2. Test primary configured URL
+    try {
+      final res = await http
+          .get(
+            Uri.parse('$safeConfigUrl/api/version'),
+            headers: {'X-Api-Key': apiKey},
+          )
+          .timeout(const Duration(seconds: 2));
+      if (res.statusCode == 200) return safeConfigUrl;
+    } catch (_) {}
+
+    // 3. Test Tailscale fallback URL
+    final prefs = await SharedPreferences.getInstance();
+    String tailscaleIp = prefs.getString('rpi_tailscale_ip') ?? '';
+
+    if (tailscaleIp.isNotEmpty) {
+      // Strip any accidental spaces or schemes from tailscale IP
+      tailscaleIp = tailscaleIp
+          .replaceAll('http://', '')
+          .replaceAll('https://', '')
+          .trim();
+
+      try {
+        final uri = Uri.parse(safeConfigUrl);
+        final fallbackUri = uri.replace(host: tailscaleIp);
+        final fallbackUrl = fallbackUri.toString();
+
+        final res = await http
+            .get(
+              Uri.parse('$fallbackUrl/api/version'),
+              headers: {'X-Api-Key': apiKey},
+            )
+            .timeout(const Duration(seconds: 4));
+        if (res.statusCode == 200) return fallbackUrl;
+      } catch (_) {}
+    }
+
+    return null; // Return null if neither worked
+  }
+
   Future<void> _loadSettings() async {
     final prefs = await SharedPreferences.getInstance();
-    final baseUrl = prefs.getString('baseUrl');
+    final configuredUrl = prefs.getString('baseUrl');
     final apiKey = prefs.getString('apiKey');
-    final wsUrl = prefs.getString('wsUrl');
 
-    if (baseUrl != null && apiKey != null && wsUrl != null) {
+    if (configuredUrl != null && apiKey != null && configuredUrl.isNotEmpty) {
+      String safeConfigUrl = configuredUrl;
+      if (!safeConfigUrl.startsWith('http://') &&
+          !safeConfigUrl.startsWith('https://')) {
+        safeConfigUrl = 'http://$safeConfigUrl';
+      }
+
+      // 1. Immediately set the state using the configured URL so UI starts normally
+      final primaryWsUrl =
+          safeConfigUrl
+              .replaceFirst('http', 'ws')
+              .replaceFirst('https', 'wss') +
+          '/sockjs/websocket';
+
       state = ConnectionSettings(
-        baseUrl: baseUrl,
+        activeUrl: safeConfigUrl,
         apiKey: apiKey,
-        wsUrl: wsUrl,
+        wsUrl: primaryWsUrl,
+        configuredUrl: safeConfigUrl,
       );
+
+      // 2. Check in background if we need to switch to Tailscale
+      final activeUrl = await _testAndDetermineActiveUrl(safeConfigUrl, apiKey);
+      if (activeUrl != null && activeUrl != safeConfigUrl && mounted) {
+        final activeWsUrl =
+            activeUrl.replaceFirst('http', 'ws').replaceFirst('https', 'wss') +
+            '/sockjs/websocket';
+
+        state = ConnectionSettings(
+          activeUrl: activeUrl,
+          apiKey: apiKey,
+          wsUrl: activeWsUrl,
+          configuredUrl: safeConfigUrl,
+        );
+      }
     }
   }
 
-  Future<void> connect(String baseUrl, String apiKey, String wsUrl) async {
+  Future<void> connect(String configuredUrl, String apiKey) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('baseUrl', baseUrl);
-    await prefs.setString('apiKey', apiKey);
-    await prefs.setString('wsUrl', wsUrl);
 
-    state = ConnectionSettings(baseUrl: baseUrl, apiKey: apiKey, wsUrl: wsUrl);
+    String safeConfigUrl = configuredUrl;
+    if (!safeConfigUrl.startsWith('http://') &&
+        !safeConfigUrl.startsWith('https://')) {
+      safeConfigUrl = 'http://$safeConfigUrl';
+    }
+
+    await prefs.setString('baseUrl', safeConfigUrl);
+    await prefs.setString('apiKey', apiKey);
+
+    // Set immediate state
+    final primaryWsUrl =
+        safeConfigUrl.replaceFirst('http', 'ws').replaceFirst('https', 'wss') +
+        '/sockjs/websocket';
+
+    state = ConnectionSettings(
+      activeUrl: safeConfigUrl,
+      apiKey: apiKey,
+      wsUrl: primaryWsUrl,
+      configuredUrl: safeConfigUrl,
+    );
+
+    // Test in background for fallback
+    final activeUrl = await _testAndDetermineActiveUrl(safeConfigUrl, apiKey);
+    if (activeUrl != null && activeUrl != safeConfigUrl && mounted) {
+      final activeWsUrl =
+          activeUrl.replaceFirst('http', 'ws').replaceFirst('https', 'wss') +
+          '/sockjs/websocket';
+
+      state = ConnectionSettings(
+        activeUrl: activeUrl,
+        apiKey: apiKey,
+        wsUrl: activeWsUrl,
+        configuredUrl: safeConfigUrl,
+      );
+    }
   }
 
   Future<void> disconnect() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('baseUrl');
     await prefs.remove('apiKey');
-    await prefs.remove('wsUrl');
-
     state = null;
   }
 }

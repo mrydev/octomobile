@@ -193,6 +193,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get rpiHost => 'Host (IP)';
 
   @override
+  String get rpiTailscaleIP => 'Tailscale IP (Optional Fallback)';
+
+  @override
   String get username => 'Username';
 
   @override
@@ -206,4 +209,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get connectSsh => 'Connect via SSH';
+
+  @override
+  String get rpiConnectionInfo => 'Server Connection';
 }

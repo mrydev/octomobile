@@ -46,6 +46,7 @@ dependencies:
   flutter_native_splash: ^2.4.7
   dartssh2: ^2.13.0
   xterm: ^4.0.0
+  flutter_local_notifications: ^20.1.0
 
 dependency_overrides:
   http: ^1.2.0

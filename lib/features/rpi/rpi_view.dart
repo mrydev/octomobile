@@ -15,10 +15,6 @@ class RpiView extends ConsumerStatefulWidget {
 }
 
 class _RpiViewState extends ConsumerState<RpiView> {
-  final _hostController = TextEditingController();
-  final _userController = TextEditingController();
-  final _passController = TextEditingController();
-
   Terminal? _terminal;
 
   @override
@@ -62,20 +58,7 @@ class _RpiViewState extends ConsumerState<RpiView> {
 
   @override
   void dispose() {
-    _hostController.dispose();
-    _userController.dispose();
-    _passController.dispose();
     super.dispose();
-  }
-
-  void _connect() {
-    ref
-        .read(rpiProvider.notifier)
-        .connect(
-          _hostController.text.trim(),
-          _userController.text.trim(),
-          _passController.text,
-        );
   }
 
   void _disconnect() {
@@ -117,84 +100,60 @@ class _RpiViewState extends ConsumerState<RpiView> {
   Widget _buildConnectForm(AppLocalizations l10n) {
     return Consumer(
       builder: (context, ref, child) {
-        final isConnecting = ref.watch(
-          rpiProvider.select((s) => s.isConnecting),
-        );
         final error = ref.watch(rpiProvider.select((s) => s.error));
 
         return Center(
           child: SingleChildScrollView(
-            padding: const EdgeInsets.all(24.0),
+            padding: const EdgeInsets.all(32.0),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Icon(
-                  Icons.router_rounded,
-                  size: 64,
-                  color: Theme.of(context).colorScheme.primary,
+                  Icons.settings_input_antenna_rounded,
+                  size: 80,
+                  color: Theme.of(
+                    context,
+                  ).colorScheme.primary.withValues(alpha: 0.5),
                 ),
                 const SizedBox(height: 24),
                 Text(
-                  l10n.connectSsh,
+                  l10n.noConnection,
                   textAlign: TextAlign.center,
-                  style: const TextStyle(
-                    fontSize: 24,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(height: 32),
-                TextField(
-                  controller: _hostController,
-                  decoration: InputDecoration(
-                    labelText: l10n.rpiHost,
-                    prefixIcon: const Icon(Icons.dns),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
                 const SizedBox(height: 16),
-                TextField(
-                  controller: _userController,
-                  decoration: InputDecoration(
-                    labelText: l10n.username,
-                    prefixIcon: const Icon(Icons.person),
-                    border: const OutlineInputBorder(),
+                Text(
+                  'Lütfen "Ayarlar" sekmesinden Sunucu bağlantısını (RPi/Tailscale) kaydedin ve bağlanın.',
+                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.6),
                   ),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: _passController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    labelText: l10n.password,
-                    prefixIcon: const Icon(Icons.password),
-                    border: const OutlineInputBorder(),
-                  ),
-                ),
-                const SizedBox(height: 32),
-                if (error.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16.0),
+                if (error.isNotEmpty) ...[
+                  const SizedBox(height: 32),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.errorContainer.withValues(alpha: 0.2),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                     child: Text(
-                      error,
+                      'Hata: $error',
                       style: TextStyle(
                         color: Theme.of(context).colorScheme.error,
+                        fontWeight: FontWeight.bold,
                       ),
                       textAlign: TextAlign.center,
                     ),
                   ),
-                FilledButton(
-                  onPressed: isConnecting ? null : _connect,
-                  style: FilledButton.styleFrom(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                  ),
-                  child: isConnecting
-                      ? const SizedBox(
-                          width: 24,
-                          height: 24,
-                          child: CircularProgressIndicator(strokeWidth: 2),
-                        )
-                      : Text(l10n.connect),
-                ),
+                ],
               ],
             ),
           ),
@@ -364,4 +323,4 @@ class _RpiViewState extends ConsumerState<RpiView> {
       ),
     );
   }
-}
+} // Close _RpiViewState

@@ -75,7 +75,6 @@ class DashboardView extends ConsumerWidget {
                     .connect(
                       'http://192.168.1.156',
                       'o0uj2Q65mOBpr_sZNJXj4x8G9vQERzLsekm-k9nF-q0',
-                      'ws://192.168.1.156/sockjs/websocket',
                     );
 
                 ScaffoldMessenger.of(context).showSnackBar(

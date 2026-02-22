@@ -5,11 +5,13 @@ import 'package:dartssh2/dartssh2.dart';
 
 class RpiCredentials {
   final String host;
+  final String tailscaleIp;
   final String username;
   final String password;
 
   RpiCredentials({
     required this.host,
+    this.tailscaleIp = '',
     required this.username,
     required this.password,
   });
@@ -76,29 +78,61 @@ class RpiNotifier extends StateNotifier<RpiState> {
   Future<void> _loadAndConnect() async {
     final prefs = await SharedPreferences.getInstance();
     final host = prefs.getString('rpi_host');
+    final tailscaleIp = prefs.getString('rpi_tailscale_ip') ?? '';
     final username = prefs.getString('rpi_username');
     final password = prefs.getString('rpi_password');
 
-    if (host != null && username != null && password != null) {
-      connect(host, username, password);
+    if (host != null &&
+        username != null &&
+        password != null &&
+        host.isNotEmpty) {
+      connect(host, tailscaleIp, username, password);
     }
   }
 
-  Future<void> connect(String host, String username, String password) async {
+  Future<void> connect(
+    String host,
+    String tailscaleIp,
+    String username,
+    String password,
+  ) async {
     state = state.copyWith(isConnecting: true, error: '');
 
     // Save credentials
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('rpi_host', host);
+    await prefs.setString('rpi_tailscale_ip', tailscaleIp);
     await prefs.setString('rpi_username', username);
     await prefs.setString('rpi_password', password);
 
     try {
-      final client = SSHClient(
-        await SSHSocket.connect(host, 22),
-        username: username,
-        onPasswordRequest: () => password,
-      );
+      SSHClient? client;
+      try {
+        client = SSHClient(
+          await SSHSocket.connect(
+            host,
+            22,
+            timeout: const Duration(seconds: 3),
+          ),
+          username: username,
+          onPasswordRequest: () => password,
+        );
+      } catch (e) {
+        if (tailscaleIp.isNotEmpty) {
+          // Fallback to Tailscale IP
+          client = SSHClient(
+            await SSHSocket.connect(
+              tailscaleIp,
+              22,
+              timeout: const Duration(seconds: 5),
+            ),
+            username: username,
+            onPasswordRequest: () => password,
+          );
+        } else {
+          rethrow;
+        }
+      }
 
       state = state.copyWith(client: client, isConnecting: false);
 

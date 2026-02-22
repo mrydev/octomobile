@@ -19,116 +19,170 @@ class PrintProgressWidget extends ConsumerWidget {
     final printTimeLeft = jobState.printTimeLeft;
     final printTime = jobState.printTime;
 
-    return Card(
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        status,
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: _getStatusColor(status, theme),
-                          fontWeight: FontWeight.bold,
+    return Container(
+      decoration: BoxDecoration(
+        color: theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+        borderRadius: BorderRadius.circular(24),
+        border: Border.all(
+          color: theme.colorScheme.surfaceContainerHighest.withValues(
+            alpha: 0.5,
+          ),
+        ),
+      ),
+      padding: const EdgeInsets.all(24.0),
+      child: Column(
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      status,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        color: _getStatusColor(status, theme),
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      fileName.isNotEmpty ? fileName : l10n.noFilesFound,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurface.withValues(
+                          alpha: 0.7,
                         ),
                       ),
-                      const SizedBox(height: 4),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 32),
+          // Circular Progress Indicator
+          SizedBox(
+            width: 160,
+            height: 160,
+            child: Stack(
+              fit: StackFit.expand,
+              children: [
+                CircularProgressIndicator(
+                  value: progress > 0 ? progress / 100 : 0,
+                  strokeWidth: 12,
+                  backgroundColor: theme.colorScheme.surfaceContainerHighest,
+                  color: theme.colorScheme.primary,
+                  strokeCap: StrokeCap.round,
+                ),
+                Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                       Text(
-                        fileName,
-                        style: theme.textTheme.bodyMedium,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                        '${progress.toStringAsFixed(1)}%',
+                        style: theme.textTheme.headlineLarge?.copyWith(
+                          fontWeight: FontWeight.w900,
+                          color: theme.colorScheme.primary,
+                        ),
+                      ),
+                      Text(
+                        l10n.progress,
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurface.withValues(
+                            alpha: 0.5,
+                          ),
+                          letterSpacing: 1.2,
+                        ),
                       ),
                     ],
                   ),
                 ),
-                Text(
-                  '${progress.toStringAsFixed(1)}%',
-                  style: theme.textTheme.headlineMedium?.copyWith(
-                    fontWeight: FontWeight.bold,
-                    color: theme.colorScheme.primary,
-                  ),
-                ),
               ],
             ),
-            const SizedBox(height: 16),
-            LinearProgressIndicator(
-              value: progress > 0 ? progress / 100 : 0,
-              backgroundColor: theme.colorScheme.surfaceContainerHighest,
-              color: theme.colorScheme.primary,
-              minHeight: 8,
-              borderRadius: BorderRadius.circular(4),
+          ),
+          const SizedBox(height: 32),
+          Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: theme.colorScheme.surface,
+              borderRadius: BorderRadius.circular(16),
             ),
-            const SizedBox(height: 16),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 _buildTimeStat(l10n.elapsed, _formatDuration(printTime), theme),
+                Container(
+                  width: 1,
+                  height: 40,
+                  color: theme.colorScheme.surfaceContainerHighest,
+                ),
                 _buildTimeStat(l10n.eta, _formatDuration(printTimeLeft), theme),
               ],
             ),
-            Builder(
-              builder: (context) {
-                final s = status.toLowerCase();
-                final isPrinting = s.contains('printing');
-                final isPaused = s.contains('paus');
+          ),
+          Builder(
+            builder: (context) {
+              final s = status.toLowerCase();
+              final isPrinting = s.contains('printing');
+              final isPaused = s.contains('paus');
 
-                if (isPrinting || isPaused) {
-                  return Column(
+              if (isPrinting || isPaused) {
+                return Padding(
+                  padding: const EdgeInsets.only(top: 24.0),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      const SizedBox(height: 24),
-                      const Divider(),
-                      const SizedBox(height: 8),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          if (isPrinting)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: theme.colorScheme.secondary,
-                              ),
-                              icon: const Icon(Icons.pause),
-                              label: Text(l10n.pause),
-                              onPressed: () =>
-                                  _handleAction(context, ref, 'pause'),
-                            ),
-                          if (isPaused)
-                            FilledButton.icon(
-                              style: FilledButton.styleFrom(
-                                backgroundColor: Colors.green,
-                              ),
-                              icon: const Icon(Icons.play_arrow),
-                              label: Text(l10n.resume),
-                              onPressed: () =>
-                                  _handleAction(context, ref, 'resume'),
-                            ),
-                          FilledButton.icon(
+                      if (isPrinting)
+                        Expanded(
+                          child: FilledButton.icon(
                             style: FilledButton.styleFrom(
-                              backgroundColor: theme.colorScheme.error,
+                              backgroundColor: theme.colorScheme.secondary,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
                             ),
-                            icon: const Icon(Icons.cancel),
-                            label: Text(l10n.cancel),
+                            icon: const Icon(Icons.pause),
+                            label: Text(l10n.pause),
                             onPressed: () =>
-                                _handleConfirmCancel(context, ref, l10n),
+                                _handleAction(context, ref, 'pause'),
                           ),
-                        ],
+                        ),
+                      if (isPaused)
+                        Expanded(
+                          child: FilledButton.icon(
+                            style: FilledButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            icon: const Icon(Icons.play_arrow),
+                            label: Text(l10n.resume),
+                            onPressed: () =>
+                                _handleAction(context, ref, 'resume'),
+                          ),
+                        ),
+                      if (isPrinting || isPaused) const SizedBox(width: 16),
+                      Expanded(
+                        child: OutlinedButton.icon(
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: theme.colorScheme.error,
+                            side: BorderSide(color: theme.colorScheme.error),
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                          ),
+                          icon: const Icon(Icons.cancel),
+                          label: Text(l10n.cancel),
+                          onPressed: () =>
+                              _handleConfirmCancel(context, ref, l10n),
+                        ),
                       ),
                     ],
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-            ),
-          ],
-        ),
+                  ),
+                );
+              }
+              return const SizedBox.shrink();
+            },
+          ),
+        ],
       ),
     );
   }

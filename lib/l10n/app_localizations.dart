@@ -464,6 +464,12 @@ abstract class AppLocalizations {
   /// **'Host (IP)'**
   String get rpiHost;
 
+  /// No description provided for @rpiTailscaleIP.
+  ///
+  /// In en, this message translates to:
+  /// **'Tailscale IP (Optional Fallback)'**
+  String get rpiTailscaleIP;
+
   /// No description provided for @username.
   ///
   /// In en, this message translates to:
@@ -493,6 +499,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Connect via SSH'**
   String get connectSsh;
+
+  /// No description provided for @rpiConnectionInfo.
+  ///
+  /// In en, this message translates to:
+  /// **'Server Connection'**
+  String get rpiConnectionInfo;
 }
 
 class _AppLocalizationsDelegate
